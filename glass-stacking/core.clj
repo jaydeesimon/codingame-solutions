@@ -47,7 +47,8 @@
   that represent an entire pyramid."
   [rows]
   ;; the width is the bottom of the pyramid. 5 is the width
-  ;; of one pyramid and (dec rows) is added for the spaces
+  ;; of one glass and (dec rows) is added for the spaces in
+  ;; between
   (let [width (+ (* 5 rows) (dec rows))]
     (mapcat #(glasses-row % width) (range 1 (inc rows)))))
 
