@@ -3,49 +3,31 @@
   (:import (java.io BufferedReader))
   (:gen-class))
 
-(defn top? [[r _]]
-  (zero? r))
+(defn circular-shift-right [n coll]
+  (concat (take-last n coll) (drop-last n coll)))
 
-(defn bottom? [[r _] n]
-  (= r (dec n)))
+(defn column [table c]
+  (mapv #(get % c) table))
 
-(defn shift-right [[r c]]
-  [r (inc c)])
+(defn table->snake-seq [table]
+  (flatten (reduce (fn [s i]
+                     (if (even? i)
+                       (conj s (reverse (column table i)))
+                       (conj s (column table i))))
+                   []
+                   (range (count table)))))
 
-(defn shift-up [[r c]]
-  [(dec r) c])
-
-(defn shift-down [[r c]]
-  [(inc r) c])
-
-(defn upper-right? [[r c] n]
-  (and (zero? r) (= c (dec n))))
-
-(defn translate [n [_ c :as coord]]
-  (cond (upper-right? coord n) [(dec n) 0]
-        (and (top? coord) (even? c)) (shift-right coord)
-        (and (bottom? coord n) (odd? c)) (shift-right coord)
-        (even? c) (shift-up coord)
-        (odd? c) (shift-down coord)
-        :else (throw (ex-info "missed a case" {}))))
-
-(defn translation-coords [n]
-  (let [coords (for [r (range n)
-                     c (range n)]
-                 [r c])]
-    (reduce (fn [m coord]
-              (assoc m coord (translate n coord))) {} coords)))
-
-(defn step [snake]
-  (let [translation-coords (translation-coords (count snake))]
-    (reduce (fn [snake' coord]
-              (let [tc (get translation-coords coord)]
-                (assoc-in snake' tc (get-in snake coord))))
-            snake
-            (keys translation-coords))))
-
-(defn step-n [snake n]
-  (reduce (fn [snake _] (step snake)) snake (range n)))
+(defn snake-seq->table [snake-seq]
+  (let [n (int (Math/sqrt (count snake-seq)))
+        partitioned (map-indexed (fn [i p]
+                                   (vec (if (even? i)
+                                          (reverse p)
+                                          p)))
+                                 (partition n snake-seq))]
+    (reduce (fn [table i]
+              (conj table (mapv #(get % i) partitioned)))
+            []
+            (range n))))
 
 (defn lines->snake [lines]
   (reduce (fn [v line]
@@ -59,6 +41,9 @@
   (let [n (read)
         x (read)
         snake (lines->snake (line-seq (BufferedReader. *in*)))]
-    (doseq [ls (step-n snake x)]
+    (doseq [ls (->> snake
+                    table->snake-seq
+                    (circular-shift-right x)
+                    snake-seq->table)]
       (println (str/join ls)))))
 
