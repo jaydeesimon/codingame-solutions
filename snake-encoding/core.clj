@@ -2,6 +2,10 @@
   (:require [clojure.string :as str])
   (:gen-class))
 
+;; This is not my solution. This is leetwinski's solution.
+;; Although, we took the same approach, this is WAY more
+;; elegant and easier to follow.
+
 (defn -main [& args]
   (let [size (read)
         i (read)
