@@ -1,6 +1,8 @@
 (ns Solution
   (:gen-class))
 
+;; magaiti's solution for reference
+
 (defn nth-letter? [n ch]
   (contains? (set (take-nth n "$ABCDEFGHIJKLMNOPQRSTUVWXYZ")) ch))
 
