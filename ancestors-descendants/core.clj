@@ -2,7 +2,7 @@
   (:gen-class))
 
 (defn node [s]
-  (let [[[_ dots content]] (re-seq #"(^\.*)(.*)" s)]
+  (let [[[_ dots content]] (re-seq #"^(\.*)(.*)$" s)]
     {:level (count dots)
      :content content}))
 
