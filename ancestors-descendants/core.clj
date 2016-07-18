@@ -6,13 +6,10 @@
     {:level (count dots)
      :content content}))
 
-(defn root? [node]
-  (zero? (:level node)))
-
 (defn trees [lines]
   (let [nodes (mapv node lines)]
     (->> (map-indexed vector nodes)
-         (filter (comp root? second))
+         (filter (comp zero? :level second))
          (partition-all 2 1)
          (map (fn [[[start _] [end _]]]
                 (let [range (if (some? end) [start end] [start])]
