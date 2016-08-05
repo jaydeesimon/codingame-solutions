@@ -2,9 +2,9 @@
   (:gen-class))
 
 (defn mixed-number [numer denom]
-  (let [sign (Integer/signum (* numer denom))
-        quotient (* sign (quot numer denom))
-        fraction (* sign (/ (rem numer denom) denom))]
+  (let [sign (Long/signum (* numer denom))
+        quotient (*' sign (quot numer denom))
+        fraction (*' sign (/ (- numer (*' denom (quot numer denom))) denom))]
     [sign quotient fraction]))
 
 (defn format-mixed-number* [[sign int-part fraction :as mixed-number]]
