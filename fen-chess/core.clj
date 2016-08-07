@@ -2,11 +2,6 @@
   (:require [clojure.pprint :as pp])
   (:gen-class))
 
-;; Pretty ugly code
-
-#_(def blank-board (vec (for [x (range 8)]
-                        (vec (repeat 8 :.)))))
-
 (defn normalize-chess-coord [[col rank]]
   (let [cols "abcdefgh"]
     [(- (count cols) (read-string (str rank)))
@@ -50,7 +45,9 @@
   (Math/sqrt (+ (* (- x2 x1) (- x2 x1)) (* (- y2 y1) (- y2 y1)))))
 
 (defn castling? [board {:keys [start target]}]
-  (and (= (piece-type board start) :k) (> (distance start target) 1)))
+  (and (= (piece-type board start) :k)
+       (> (distance start target) 1)
+       (#{[0 4] [7 4]} start)))
 
 (defn en-passant?
   [board {prev-start :start prev-target :target :as prev-move} {start :start target :target}]
@@ -59,16 +56,13 @@
     (let [passant-inited? (and (= (piece-type board prev-target) :p)
                                (== (distance prev-start prev-target) 2))
           passant-completed? (and (= (piece-type board start) :p)
-                                  (= target (mapv + prev-target (if (= (piece board prev-target) :P) [1 0] [-1 0]))))]
+                                  (= target (mapv + prev-target (if (= (piece board prev-target) :P)
+                                                                  [1 0]
+                                                                  [-1 0]))))]
       (and passant-inited? passant-completed?))))
 
-(defn pawn-promotion? [board {:keys [start promotion]}]
-  (some? promotion)
-  #_(and promotion (= (piece-type board start) :p))
-  )
-
 (defn move-type [board prev-move move]
-  (cond (pawn-promotion? board move) :pawn-promotion
+  (cond (get move :promotion) :pawn-promotion
         (castling? board move) :castling
         (en-passant? board prev-move move) :en-passant
         :else :regular))
@@ -106,9 +100,6 @@
               (execute-move-steps board move-steps)))
           board
           (partition 2 1 (concat [nil] moves))))
-
-(defn go [fen moves]
-  (board->fen (execute-moves (fen->board fen) (map parse-move moves))))
 
 (defn -main [& _]
   (let [board (fen->board (read-line))
