@@ -13,18 +13,15 @@
   (->> (partition 2 1 ants)
        (filter (fn [[{direction1 :direction} {direction2 :direction}]]
                  (and (= direction1 :right) (= direction2 :left))))
-       (reduce (fn [swaps [{name1 :name :as ant1} {name2 :name :as ant2}]]
-                 (-> (assoc swaps name1 ant2)
-                     (assoc name2 ant1)))
+       (reduce (fn [swaps [ant1 ant2]]
+                 (-> swaps
+                     (assoc ant1 ant2)
+                     (assoc ant2 ant1)))
                {})))
 
 (defn jump [ants]
   (let [swaps (find-swaps ants)]
-    (map (fn [{name :name :as ant}]
-           (if-let [ant-swap (get swaps name)]
-             ant-swap
-             ant))
-         ants)))
+    (map #(or (get swaps %) %) ants)))
 
 (defn jump-seconds [ants-right ants-left seconds]
   (let [ants (initialize-ants ants-right ants-left)]
