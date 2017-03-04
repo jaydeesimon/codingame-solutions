@@ -9,10 +9,12 @@
   (concat (initialize-ant-group (reverse ants-right) :right)
           (initialize-ant-group ants-left :left )))
 
+(defn- facing-each-other? [[{direction1 :direction} {direction2 :direction}]]
+  (and (= direction1 :right) (= direction2 :left)))
+
 (defn find-swaps [ants]
   (->> (partition 2 1 ants)
-       (filter (fn [[{direction1 :direction} {direction2 :direction}]]
-                 (and (= direction1 :right) (= direction2 :left))))
+       (filter facing-each-other?)
        (reduce (fn [swaps [ant1 ant2]]
                  (-> swaps
                      (assoc ant1 ant2)
