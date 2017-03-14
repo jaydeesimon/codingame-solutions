@@ -17,12 +17,12 @@
     sandpile))
 
 (defn distribute-step [sandpile]
-  (let [size (count sandpile)]
-    (->> (for [r (range size) c (range size)] [r c])
-         (some #(when (>= (get-in sandpile %) 4) [%]))
-         (reduce (fn [sandpile coord]
-                   (distribute-coord sandpile coord))
-                 sandpile))))
+  (let [size (count sandpile)
+        heavy-square (->> (for [r (range size) c (range size)] [r c])
+                          (some #(when (>= (get-in sandpile %) 4) %)))]
+    (if heavy-square
+      (distribute-coord sandpile heavy-square)
+      sandpile)))
 
 (defn add-sandpiles [s1 s2]
   (let [s3 (mapv #(mapv + %1 %2) s1 s2)]
