@@ -3,9 +3,7 @@
             [clojure.string :as str])
   (:gen-class))
 
-(def memo (atom {}))
-
-(defn max-food [m xy]
+(defn max-food* [m xy memo]
   (or (get @memo xy)
       (let [right (mapv + xy [0 1])
             move-right? (get-in m right)
@@ -14,11 +12,15 @@
             curr-val (get-in m xy)
             v (+ curr-val
                  (max
-                   (if move-right? (max-food m right) 0)
-                   (if move-down? (max-food m down) 0)))]
+                   (if move-right? (max-food* m right memo) 0)
+                   (if move-down? (max-food* m down memo) 0)))]
         (do
           (swap! memo #(assoc % xy v))
           v))))
+
+(defn max-food [m xy]
+  (let [memo (atom {})]
+    (max-food* m xy memo)))
 
 (defn parse-input [source]
   (let [ns (as-> (slurp source) t
